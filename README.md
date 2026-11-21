@@ -114,6 +114,25 @@ Všetky premenné sú popísané v `.env.example`.
 
 > `NEXT_PUBLIC_META_PIXEL_ID` sa vkladá pri builde. Po jeho zmene treba vždy spraviť Redeploy.
 
+## Black Friday (23. – 29. 11. 2026)
+
+Samostatná podstránka **`/black-friday`** (reklamu smerujte priamo sem). Používa tú istú platbu, webhook, PDF poukážky a meranie ako vianočné darčeky.
+
+| Balík | Obsah | Pôvodne | Cena |
+| --- | --- | --- | --- |
+| Paradise Body Shape BASIC | 1× EMShape 40 min, 1× INFRAShape 30 min, 1× lymfodrenáž 30 min | 75 € | 55 € |
+| Paradise Body Shape PREMIUM | 5× každé | 300 € | 179 € |
+| Paradise Body Shape VIP | 10× každé | 580 € | 290 € |
+
+- Termín je v `src/lib/products.ts` (`blackFridayWindow`), texty a farby v `src/lib/config.ts` (`blackFriday`), téma zlato-čierna (`.bf--gold`).
+- Pred začiatkom stránka ukazuje odpočet a „Predaj od 23. 11.“, po skončení „Akcia skončila“ s odkazom na vianočné poukážky.
+  Server mimo termínu platbu nevytvorí, aj keby niekto mal starú stránku otvorenú.
+- Platnosť Black Friday poukážok: `BF_VALID_UNTIL` (inak platí `VOUCHER_VALID_UNTIL`). Treba potvrdiť s Paradise.
+- V e-maile, PDF a na ďakovacej stránke je text pre kupujúceho („Black Friday poukážka“, „termín si dohodnete“), nie pre obdarovaného.
+- Lokálne sa dá akcia otvoriť aj mimo termínu cez `SALE_PREVIEW=1` v `.env.local`. **Nikdy to nedávajte do Vercelu.**
+- Prečiarknuté ceny: pri oznámení zľavy musí byť ako pôvodná uvedená najnižšia cena za posledných 30 dní (pravidlá Omnibus).
+  Overte, že 75 / 300 / 580 € tomu zodpovedá.
+
 ## Lokálny vývoj
 
 ```bash

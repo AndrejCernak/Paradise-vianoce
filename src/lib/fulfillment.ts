@@ -1,8 +1,8 @@
 import "server-only";
 import type Stripe from "stripe";
 import { stripe } from "./stripe";
-import { getProduct, formatEur } from "./products";
-import { appId, salon, siteUrl, voucherValidUntil } from "./config";
+import { getProduct, formatEur, isDeal } from "./products";
+import { appId, blackFriday, salon, siteUrl, voucherValidUntil } from "./config";
 import { renderVouchersPdf, voucherCode, type VoucherInfo } from "./voucher";
 import { sendEmail, esc } from "./email";
 import { sendCapi, capiAllowed, buildFbc } from "./meta-capi";
@@ -41,6 +41,10 @@ export async function fulfillCheckout(sessionId: string) {
   const recipient = s.custom_fields?.find((f) => f.key === "obdarovany")?.text?.value ?? undefined;
   const productName = product?.name ?? s.line_items?.data[0]?.description ?? "Darčeková poukážka";
   const unitLabel = formatEur((s.amount_total ?? 0) / qty);
+  // Black Friday balík si zákazník kupuje väčšinou pre seba, preto iné texty a platnosť.
+  const deal = isDeal(product);
+  const label = deal ? "Black Friday poukážka" : "Darčeková poukážka";
+  const validUntil = deal ? blackFriday.validUntil : voucherValidUntil;
 
   // 1) Conversions API: Purchase so skutočnou sumou. Rovnaké event_id posiela ďakovacia stránka.
   const consent = md.consent === "1";
@@ -82,8 +86,9 @@ export async function fulfillCheckout(sessionId: string) {
     includes: product?.includes ?? [],
     valueLabel: unitLabel,
     recipient,
-    validUntil: voucherValidUntil,
+    validUntil,
     bonus: product?.bonus,
+    label,
   }));
   const pdf = Buffer.from(await renderVouchersPdf(vouchers)).toString("base64");
   const fileName = `Poukazka-Paradise-Martin-${codes[0]}.pdf`;
@@ -92,7 +97,7 @@ export async function fulfillCheckout(sessionId: string) {
   if (customer?.email) {
     await sendEmail({
       to: [{ email: customer.email, name: customer.name ?? undefined }],
-      subject: qty > 1 ? `Vaše darčekové poukážky (${qty} ks) – ${salon.name}` : `Vaša darčeková poukážka – ${salon.name}`,
+      subject: qty > 1 ? `Vaše poukážky (${qty} ks): ${productName} – ${salon.name}` : `Vaša ${label.toLowerCase()} – ${salon.name}`,
       replyTo: process.env.SALON_NOTIFY_EMAIL || undefined,
       attachments: [{ name: fileName, content: pdf }],
       html: `
@@ -100,8 +105,8 @@ export async function fulfillCheckout(sessionId: string) {
           <p>Dobrý deň${customer.name ? ` ${esc(customer.name.split(" ")[0])}` : ""},</p>
           <p>ďakujeme za nákup. V prílohe je ${qty > 1 ? "vašich " + qty + " poukážok" : "vaša poukážka"} <b>${esc(productName)}</b> v PDF. Môžete ju vytlačiť alebo poslať ďalej.</p>
           <p><b>Kód:</b> ${codes.map(esc).join(", ")}<br/>
-          <b>Platí do:</b> ${esc(voucherValidUntil)}</p>
-          <p>Termín si obdarovaná osoba dohodne na čísle ${salon.phone} a uvedie kód poukážky.</p>
+          <b>Platí do:</b> ${esc(validUntil)}</p>
+          <p>${deal ? "Termín si dohodnete" : "Termín si obdarovaná osoba dohodne"} na čísle ${salon.phone} a ${deal ? "uvediete" : "uvedie"} kód poukážky.</p>
           <p>Tešíme sa,<br/>tím ${esc(salon.fullName)}<br/>${esc(salon.address)}</p>
         </div>`,
     });

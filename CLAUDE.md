@@ -41,6 +41,14 @@ a webhook cudzie platby preskakuje.
 - Na stránke nie sú recenzie ani hodnotenie: nemáme overené údaje Paradise. Nevymýšľať ich.
 - Sľuby, ktoré Paradise nepotvrdilo (výmena za inú službu, tlačená poukážka v obálke), na stránke nie sú.
 
+## Black Friday 2026
+- Podstránka `/black-friday`: `src/app/black-friday/page.tsx`, `black-friday.css`, klient `src/components/BlackFridayShop.tsx`.
+  Tieto tri súbory sú **rovnaké v Relaxe aj v Paradise**, rozdiely sú len v `config.ts` (`blackFriday`) a `products.ts`.
+- Produkty majú `group: "black-friday"`, `availableFrom/Until` (23. – 29. 11.), `compareAtCents`, `tier`, `sessions`, `landingPath`.
+  `isAvailable` kontroluje začiatok aj koniec; `SALE_PREVIEW=1` ho obíde (len lokálne).
+- Fulfillment podľa `isDeal(product)` mení nadpis PDF, predmet e-mailu, platnosť (`blackFriday.validUntil`) a oslovenie.
+- Nákupná lišta je `position: fixed` dole; cookie lišta zapisuje svoju výšku do `--consent-h`, aby sa neprekrývali.
+
 ## Stav
 Hotové: katalóg a texty Paradise, typecheck, build, selftest (CAPI payload, kódy, PDF), vizuálna kontrola na desktope a mobile.
 
