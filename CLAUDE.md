@@ -29,8 +29,8 @@ a webhook cudzie platby preskakuje.
 ## Dôležité rozhodnutia (nemeniť bez dôvodu)
 - **Deduplikácia:** InitiateCheckout má rovnaké `eventId` v Pixeli (BuyButton) aj v CAPI (`/api/checkout`).
   Purchase má `event_id = purchase_<stripe session id>` v CAPI (webhook) aj v Pixeli (ďakovacia stránka).
-- **Consent:** Pixel sa načíta až po „Povoliť všetky“. `CAPI_REQUIRE_CONSENT=true` → bez súhlasu sa do Mety neposiela nič.
-- `fbp`, `fbc`, `fbclid`, IP a user agent sa ukladajú do metadát Stripe session (len so súhlasom) a použijú sa pri Purchase.
+- **Consent:** Pixel a cookies Mety (_fbp, _fbc) až po „Povoliť všetky“. Conversions API (InitiateCheckout, Purchase) ide **aj bez súhlasu** s IP, prehliadačom, fbclid a zahashovaným e-mailom/telefónom (rozhodnutie klienta 22. 11. 2026, oprávnený záujem, opísané v GDPR stránke). `CAPI_REQUIRE_CONSENT=true` vráti prísny režim.
+- IP, user agent a `fbclid` sa ukladajú do metadát Stripe session podľa `capiAllowed`, `fbp`/`fbc` len so súhlasom; použijú sa pri Purchase.
 - **Kódy poukážok** `PAR-XXXX-XXXX` sú deterministické (HMAC zo session id + poradie) → opakovaný webhook nevytvorí nové kódy.
   Po spracovaní sa na PaymentIntent zapíše `fulfilled=1` a `voucher_codes`.
 - **Metadáta `app=paradise-darceky`** (konštanta `appId` v `config.ts`): fulfillment spracuje len platby z tejto stránky.
@@ -47,6 +47,9 @@ a webhook cudzie platby preskakuje.
 - Produkty majú `group: "black-friday"`, `availableFrom/Until` (23. – 29. 11.), `compareAtCents`, `tier`, `sessions`, `landingPath`.
   `isAvailable` kontroluje začiatok aj koniec; `SALE_PREVIEW=1` ho obíde (len lokálne).
 - Fulfillment podľa `isDeal(product)` mení nadpis PDF, predmet e-mailu, platnosť (`blackFriday.validUntil`) a oslovenie.
+- **Limit kusov:** PREMIUM a VIP majú `stock: 10` (reálny limit od klienta 22. 11. 2026). Predané kusy sa rátajú zo zaplatených
+  Stripe Checkout sessions od začiatku akcie (`src/lib/stock.ts`). Stránka ukazuje „Zostáva X z 10 kusov“ (obnova každých 60 s),
+  `/api/checkout` vypredaný balík odmietne (409) a počet kusov v Stripe obmedzí na zvyšok. Pri výpadku Stripe sa limit nekontroluje.
 - Nákupná lišta je `position: fixed` dole; cookie lišta zapisuje svoju výšku do `--consent-h`, aby sa neprekrývali.
 
 ## Stav
