@@ -18,7 +18,7 @@ export async function fulfillCheckout(sessionId: string) {
   const s = await stripe().checkout.sessions.retrieve(sessionId, {
     expand: ["line_items", "payment_intent"],
   });
-  // Ten istý Stripe účet používa aj rezervačný systém salónu. Platby, ktoré nevznikli tu, nie sú poukážky.
+  // Ten istý Stripe účet používa rezervačný systém salónu a môže aj Relax Žilina (rovnaké ID balíkov). Cudzie platby preskočíme.
   if (s.metadata?.app !== appId) {
     console.log(`[fulfill] ${sessionId} nepatrí tejto stránke, preskakujem`);
     return;

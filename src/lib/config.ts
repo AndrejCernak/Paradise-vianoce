@@ -20,7 +20,7 @@ export const salon = {
   },
 };
 
-/** Označenie platieb z tejto stránky v metadátach Stripe (na tom istom účte beží aj rezervačný systém). */
+/** Označenie platieb z tejto stránky v metadátach Stripe (na tom istom účte beží aj rezervačný systém a môže aj Relax Žilina). */
 export const appId = "paradise-darceky";
 
 export const siteUrl = (process.env.SITE_URL || "http://localhost:3000").replace(/\/$/, "");
