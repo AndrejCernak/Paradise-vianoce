@@ -22,7 +22,7 @@ a webhook cudzie platby preskakuje.
 - Stripe Checkout (hostovaný), webhook `/api/stripe-webhook`
 - Meta Pixel (až po súhlase s cookies) + Conversions API zo servera
 - PDF poukážky cez `pdf-lib` + DejaVu fonty v `assets/fonts` (kvôli diakritike)
-- E-maily cez n8n webhook (`N8N_MAIL_WEBHOOK_URL`, workflow `n8n/poukazky-email.json`, Send Email cez SMTP), náhradne Brevo API; voliteľne n8n webhook → NocoDB
+- E-maily cez n8n webhook (`N8N_MAIL_WEBHOOK_URL`, workflow `n8n/poukazky-email.json`, Send Email z webpointsk@gmail.com s menom salónu, webhook chráni len náhodná cesta), náhradne Brevo API; voliteľne n8n webhook → NocoDB
 - Hosting: Vercel
 - Fonty stránky cez `@fontsource` (self-hosted, bez Google Fonts kvôli GDPR)
 
