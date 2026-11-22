@@ -22,7 +22,7 @@ a webhook cudzie platby preskakuje.
 - Stripe Checkout (hostovaný), webhook `/api/stripe-webhook`
 - Meta Pixel (až po súhlase s cookies) + Conversions API zo servera
 - PDF poukážky cez `pdf-lib` + DejaVu fonty v `assets/fonts` (kvôli diakritike)
-- E-maily cez Brevo API, voliteľne n8n webhook → NocoDB
+- E-maily cez n8n webhook (`N8N_MAIL_WEBHOOK_URL`, workflow `n8n/poukazky-email.json`, Send Email cez SMTP), náhradne Brevo API; voliteľne n8n webhook → NocoDB
 - Hosting: Vercel
 - Fonty stránky cez `@fontsource` (self-hosted, bez Google Fonts kvôli GDPR)
 
@@ -52,7 +52,7 @@ a webhook cudzie platby preskakuje.
 ## Stav
 Hotové: katalóg a texty Paradise, typecheck, build, selftest (CAPI payload, kódy, PDF), vizuálna kontrola na desktope a mobile.
 
-**Neoverené** (chýbajú kľúče): reálna Stripe platba, webhook, doručenie udalostí do Events Managera, Brevo e-maily.
+**Neoverené** (chýbajú kľúče): reálna Stripe platba, webhook, Conversions API zo servera, e-maily cez n8n.
 
 ## TODO
 1. Potvrdiť s Paradise: platnosť poukážok (`VOUCHER_VALID_UNTIL`, zatiaľ 31. 3. 2027), prevádzkovateľa (IČO, sídlo),
