@@ -16,7 +16,7 @@ export const purchaseEventId = (sessionId: string) => `purchase_${sessionId}`;
  */
 export async function fulfillCheckout(sessionId: string) {
   const s = await stripe().checkout.sessions.retrieve(sessionId, {
-    expand: ["line_items", "payment_intent"],
+    expand: ["line_items", "payment_intent", "invoice"],
   });
   // Ten istý Stripe účet používa rezervačný systém salónu a môže aj Relax Žilina (rovnaké ID balíkov). Cudzie platby preskočíme.
   if (s.metadata?.app !== appId) {
@@ -45,6 +45,10 @@ export async function fulfillCheckout(sessionId: string) {
   const deal = isDeal(product);
   const label = deal ? "Black Friday poukážka" : "Darčeková poukážka";
   const validUntil = deal ? blackFriday.validUntil : voucherValidUntil;
+  // Faktúru vystavil Stripe pri platbe (invoice_creation), odkaz pridáme do e-mailov.
+  const invoice = s.invoice && typeof s.invoice === "object" ? s.invoice : null;
+  const invoiceUrl = invoice?.hosted_invoice_url ?? null;
+  const invoiceLabel = invoice?.number ? `faktúra č. ${invoice.number}` : "faktúra";
 
   // 1) Conversions API: Purchase so skutočnou sumou. Rovnaké event_id posiela ďakovacia stránka.
   const consent = md.consent === "1";
@@ -108,6 +112,7 @@ export async function fulfillCheckout(sessionId: string) {
           <p><b>Kód:</b> ${codes.map(esc).join(", ")}<br/>
           <b>Platí do:</b> ${esc(validUntil)}</p>
           <p>${deal ? "Termín si dohodnete" : "Termín si obdarovaná osoba dohodne"} na čísle ${salon.phone} a ${deal ? "uvediete" : "uvedie"} kód poukážky.</p>
+          ${invoiceUrl ? `<p>Faktúru si môžete stiahnuť tu: <a href="${esc(invoiceUrl)}">${esc(invoiceLabel)}</a></p>` : ""}
           <p>Tešíme sa,<br/>tím ${esc(salon.fullName)}<br/>${esc(salon.address)}</p>
         </div>`,
     });
@@ -125,7 +130,7 @@ export async function fulfillCheckout(sessionId: string) {
           <p>Kódy: ${codes.map(esc).join(", ")}</p>
           <p>Kupujúci: ${esc(customer?.name ?? "")}, ${esc(customer?.email ?? "")}, ${esc(customer?.phone ?? "")}<br/>
           Obdarovaný: ${esc(recipient ?? "neuvedené")}</p>
-          <p>Stripe: ${esc(s.id)}</p>
+          <p>Stripe: ${esc(s.id)}${invoiceUrl ? `<br/><a href="${esc(invoiceUrl)}">${esc(invoiceLabel)}</a>` : ""}</p>
         </div>`,
     });
   }

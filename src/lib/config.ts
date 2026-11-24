@@ -23,6 +23,9 @@ export const salon = {
 /** Označenie platieb z tejto stránky v metadátach Stripe (na tom istom účte beží aj rezervačný systém a môže aj Relax Žilina). */
 export const appId = "paradise-darceky";
 
+/** Sadzba DPH na faktúrach zo Stripe (ceny sú vrátane DPH). Potvrdiť s účtovníčkou, VAT_RATE na Verceli ju prepíše, 0 = bez DPH. */
+export const vatRate = Number(process.env.VAT_RATE ?? 23);
+
 export const siteUrl = (process.env.SITE_URL || "http://localhost:3000").replace(/\/$/, "");
 // DOPLNIŤ: platnosť poukážok ešte nie je s Paradise potvrdená.
 export const voucherValidUntil = process.env.VOUCHER_VALID_UNTIL || "31. 3. 2027";
