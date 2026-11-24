@@ -23,8 +23,8 @@ export const salon = {
 /** Označenie platieb z tejto stránky v metadátach Stripe (na tom istom účte beží aj rezervačný systém a môže aj Relax Žilina). */
 export const appId = "paradise-darceky";
 
-/** Sadzba DPH na faktúrach zo Stripe (ceny sú vrátane DPH). Potvrdiť s účtovníčkou, VAT_RATE na Verceli ju prepíše, 0 = bez DPH. */
-export const vatRate = Number(process.env.VAT_RATE ?? 23);
+/** Sadzba DPH na faktúrach zo Stripe (ceny sú vrátane DPH). PEDORE ako registrovaný sociálny podnik má 5 % (klient 24. 11. 2026). VAT_RATE na Verceli ju prepíše. */
+export const vatRate = Number(process.env.VAT_RATE ?? 5);
 
 export const siteUrl = (process.env.SITE_URL || "http://localhost:3000").replace(/\/$/, "");
 // DOPLNIŤ: platnosť poukážok ešte nie je s Paradise potvrdená.
